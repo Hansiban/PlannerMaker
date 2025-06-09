@@ -22,7 +22,6 @@
                     <Label Text="담당과목" />
                     <Entry x:Name="SubjectsEntry" Placeholder="과목명" WidthRequest="200" />
                 </VerticalStackLayout>
-ㅇㅇㅇ
                 <VerticalStackLayout>
                     <Label Text="강사명" />
                     <Entry x:Name="InstructorEntry" Text="류정자"  WidthRequest="200" />
