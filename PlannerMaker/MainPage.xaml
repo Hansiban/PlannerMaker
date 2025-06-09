@@ -1,0 +1,47 @@
+﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="PlannerMaker.MainPage"
+             Title="PlannerMaker">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="15">
+
+            <Label Text="학원명" />
+            <Entry x:Name="AcademyNameEntry" Placeholder="학원명을 입력하세요" />
+
+            <Label Text="강의일시" />
+            <HorizontalStackLayout Spacing="10">
+                <Picker x:Name="YearPicker" WidthRequest="100" />
+                <Label Text="년" VerticalOptions="Center" />
+                <Picker x:Name="MonthPicker" WidthRequest="80" />
+                <Label Text="월" VerticalOptions="Center" />
+            </HorizontalStackLayout>
+
+            <HorizontalStackLayout Spacing="20">
+                <VerticalStackLayout>
+                    <Label Text="담당과목" />
+                    <Entry x:Name="SubjectsEntry" Placeholder="과목명" WidthRequest="200" />
+                </VerticalStackLayout>
+ㅇㅇㅇ
+                <VerticalStackLayout>
+                    <Label Text="강사명" />
+                    <Entry x:Name="InstructorEntry" Text="류정자"  WidthRequest="200" />
+                </VerticalStackLayout>
+            </HorizontalStackLayout>
+
+            <Label Text="강의목표 (최대 4개)" />
+            <VerticalStackLayout x:Name="LessonObjectivesLayout" Spacing="10" />
+
+            <Button Text="강의목표 추가" Clicked="OnAddLessonObjectiveClicked" />
+
+            <Label Text="강의계획 추가 (최대 5개)" />
+            <VerticalStackLayout x:Name="LessonPlansLayout" Spacing="10" />
+
+            <Button Text="강의계획 추가" Clicked="OnAddLessonPlanClicked" />
+
+            <Button Text="강의계획서 생성" BackgroundColor="#FFC0CB" TextColor="Black" FontAttributes="Bold" Margin="0,20,0,0" Clicked="OnGenerateLessonPlanClicked" />
+
+        </VerticalStackLayout>
+
+    </ScrollView>
+</ContentPage>
