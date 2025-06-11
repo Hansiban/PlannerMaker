@@ -1,5 +1,6 @@
 ﻿using OfficeOpenXml;
 using PlannerMaker.Models;
+using System.Reflection;
 
 namespace PlannerMaker;
 
@@ -139,8 +140,29 @@ public partial class MainPage : ContentPage
     /// <param name="e"></param>
     private async void OnGenerateLessonPlanClicked(object sender, EventArgs e)
     {
+        //유효성 검사
+
         try
         {
+            // 현재 어셈블리
+            var assembly = Assembly.GetExecutingAssembly();
+
+            // 리소스 이름 확인 (이건 네임스페이스 + 폴더 + 파일명)
+            string resourceName = "PlannerMaker.Resources.Templates.ExcelTemplate.xlsx";
+
+            // 리소스 스트림 가져오기
+            using Stream resourceStream = assembly.GetManifestResourceStream(resourceName);
+            if (resourceStream == null)
+            {
+                throw new Exception($"리소스를 찾을 수 없습니다: {resourceName}");
+            }
+
+            // 패키지 생성
+            using var package = new ExcelPackage(resourceStream);
+
+            // 엑셀 수정 예시
+            ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
+
             // 엑셀 파일 저장 경로 설정 (플랫폼별로 다르게 처리해야 함)
             string fileName = $"LessonPlan_{DateTime.Now:yyyyMMddHHmmss}.xlsx";
             string filePath;
@@ -157,39 +179,54 @@ public partial class MainPage : ContentPage
         // 기타 플랫폼 적당한 임시 폴더
         filePath = System.IO.Path.Combine(FileSystem.CacheDirectory, fileName);
 #endif
+            //학원명, 강의일시, 담당과목
+            worksheet.Cells["B4"].Value = $"{AcademyNameEntry.Text}";
+            worksheet.Cells["B6"].Value = $"{YearPicker.SelectedItem.ToString()}년 {MonthPicker.SelectedItem.ToString()}월";
+            worksheet.Cells["B7"].Value = $"{SubjectsEntry.Text}";
 
-            using var package = new ExcelPackage(new FileInfo(filePath));
-            var worksheet = package.Workbook.Worksheets.Add("강의계획서");
+            //강의목표
+            string strLessonObject = string.Empty;
 
-            // 헤더 작성
-            worksheet.Cells[1, 1].Value = "강의일자";
-            worksheet.Cells[1, 2].Value = "강의계획";
-            worksheet.Cells[1, 3].Value = "비고";
-
-            // 데이터 채우기
-            int row = 2;
-            foreach (var plan in LessonPlans)
+            for (int i = 0; i < LessonObjectives.Count; i++)
             {
-                worksheet.Cells[row, 1].Value = plan.LessonDate.ToString("yyyy-MM-dd");
-                worksheet.Cells[row, 2].Value = plan.PlanDetail;
-                worksheet.Cells[row, 3].Value = plan.Note;
-                row++;
+                string lessonObjectives = LessonObjectives[i];
+                strLessonObject += $"◎ {lessonObjectives}";
+
+                if (i != LessonObjectives.Count - 1)
+                    strLessonObject += "\n\n";
+            }
+
+            worksheet.Cells["B8"].Value = strLessonObject;
+
+            //강의계획
+            for (int i = 0; i < MaxLessonPlans; i++)
+            {
+                LessonPlan lessonPlan = i >= LessonPlans.Count ? new LessonPlan() :  LessonPlans[i];
+
+                string dateCellPoint = $"A{16 + ((i + 1) * 4)}";
+                string detailCellPoint = $"B{16 + ((i + 1) * 4)}";
+                string noteCellPoint = $"F{16 + ((i + 1) * 4)}";
+
+                string strLessonDate = lessonPlan.LessonDate == DateTime.MinValue ? string.Empty : lessonPlan.LessonDate.ToString("MM/dd");
+
+                worksheet.Cells[dateCellPoint].Value = $"{strLessonDate}";
+                worksheet.Cells[detailCellPoint].Value = $"{lessonPlan.PlanDetail}";
+                worksheet.Cells[noteCellPoint].Value = $"{lessonPlan.Note}";
             }
 
             // 컬럼 너비 자동 조정
             worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
 
             // 저장
-            await package.SaveAsync();
+            var excelBytes = package.GetAsByteArray();
+            File.WriteAllBytes(filePath, excelBytes);
 
             // 사용자에게 완료 메시지 띄우기
             await DisplayAlert("완료", $"강의계획서가 생성되었습니다.\n파일 위치:\n{filePath}", "확인");
-
         }
         catch (Exception ex)
         {
             await DisplayAlert("오류", $"엑셀 생성 중 오류가 발생했습니다.\n{ex.Message}", "확인");
         }
     }
-
 }

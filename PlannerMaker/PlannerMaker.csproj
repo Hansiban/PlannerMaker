@@ -65,8 +65,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Remove="Resources\Templates\ExcelTemplate.xlsx" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <EmbeddedResource Include="Resources\Raw\AboutAssets.txt" />
-	  <EmbeddedResource Include="Resources\Raw\ExcelTemplate.xlsx" />
+	  <EmbeddedResource Include="Resources\Templates\ExcelTemplate.xlsx" />
 	</ItemGroup>
 
 	<ItemGroup>
